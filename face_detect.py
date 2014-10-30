@@ -15,7 +15,7 @@ import backend
 
 define('debug', default=1, help='hot deployment. use in dev only', type=int)
 define('port', default=8000, help='run on the given port', type=int)
-define('imageFolder', default='./uploadedImages', help = 'folder to store uploaded images', type=str)
+define('imgFolder', default='./uploadedImages', help = 'folder to store uploaded images', type=str)
 
 # FACEDETECT_IMG_HASHES = 'facedetect:img:hashes'
 SET_IMG_HASHES = 'set:img:hashes'
@@ -104,8 +104,8 @@ class Application(Application):
             )
         settings.update({'static_path':'./static'})
         tornado.web.Application.__init__(self, handlers, **settings)
-        if not os.path.exists(options.imageFolder):
-            os.makedirs(options.imageFolder)
+        if not os.path.exists(options.imgFolder):
+            os.makedirs(options.imgFolder)
 
 class FaceDetectHandler(RequestHandler):
     def get(self):
@@ -116,15 +116,15 @@ class FaceDetectHandler(RequestHandler):
         imgBytes = self.request.files.get('file_inp')[0].body
         imgFileName = self.request.files.get('file_inp')[0].filename
         imgHash = hashlib.sha512(imgBytes).hexdigest()
-        imgNew = backend.redisConn.sismember(SET_IMG_HASHES, imgHash)
+        imgNew = not backend.redisConn.sismember(SET_IMG_HASHES, imgHash)
         #backend.redislabs.pfadd(FACEDETECT_IMG_HASHES)
         imgNparr = np.fromstring(imgBytes, np.uint8)
         imgType = imgFileName.split('.')[1]
         imgType = '.jpg'
         image = cv2.imdecode(imgNparr, cv2.CV_LOAD_IMAGE_COLOR)
         if imgNew:
-            cv2.imwrite(imgHash + imgType, image)
-            backend.redisConn.linsert(imgHash)
+            cv2.imwrite(os.path.join(options.imgFolder, imgHash + imgType), image)
+            backend.redisConn.sadd(SET_IMG_HASHES, imgHash)
         FD = FeatureDetect(image)
         FD.detectFace()
         FD.detectEyes()
