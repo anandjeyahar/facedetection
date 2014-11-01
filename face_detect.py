@@ -96,7 +96,6 @@ class Application(Application):
     def __init__(self):
         handlers = [
                 (r'/facedetect', FaceDetectHandler),
-                (r'/images/*', ImagesHandler),
                 ]
         settings = dict(
             autoescape=None,  # tornado 2.1 backward compatibility
@@ -108,10 +107,6 @@ class Application(Application):
         if not os.path.exists(options.imgFolder):
             os.makedirs(options.imgFolder)
 
-class ImagesHandler(RequestHandler):
-    def get(self):
-        imgName = self.request.uri.split('/')[1]
-        pass
 
 class FaceDetectHandler(RequestHandler):
     def get(self):
@@ -136,8 +131,7 @@ class FaceDetectHandler(RequestHandler):
         FD.detectFace()
         FD.detectEyes()
         FD.detectLips()
-        imgUrl = os.path.join('images', imgHash + imgType)
-        self.render('static/areaselect.html',imgPath=imgUrl )
+        self.render('static/areaselect.html',imgPath=imgPath )
         #self.finish(json.dumps(FD.features))
         # Draw a rectangle around the faces
         # print "Found {0} faces!".format(len(FD.faces))
