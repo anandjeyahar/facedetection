@@ -7,11 +7,11 @@ from tornado.web import RequestHandler, Application
 define('debug', default=1, help='hot deployment. use in dev only', type=int)
 define('port', default=8888, help='run on the given port', type=int)
 
-@bottle.get('/facedetect')
+@bottle.get('/')
 def facedetect():
     return bottle.template('static/imageupload.html')
 
-@bottle.post('/facedetect')
+@bottle.post('/')
 def facedetect():
     # Read the image
     imgBytes = self.request.files.get('file_inp')[0].body
@@ -53,7 +53,7 @@ class Application(Application):
     #  """
     def __init__(self):
         handlers = [
-                (r'/facedetect', FaceDetectHandler),
+                (r'/', FaceDetectHandler),
                 ]
         settings = dict(
             autoescape=None,  # tornado 2.1 backward compatibility
