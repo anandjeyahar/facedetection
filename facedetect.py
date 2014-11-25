@@ -7,8 +7,7 @@ from PIL import Image
 import sys
 import tornado
 from tornado.options import define, options
-# Custom backend account settings
-import backend
+## Custom backend account settings
 
 define('imgFolder', default='./uploadedImages', help = 'folder to store uploaded images', type=str)
 
