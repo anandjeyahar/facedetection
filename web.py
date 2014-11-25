@@ -5,7 +5,7 @@ from tornado.options import define, options
 from tornado.web import RequestHandler, Application
 
 define('debug', default=1, help='hot deployment. use in dev only', type=int)
-define('port', default=8000, help='run on the given port', type=int)
+define('port', default=8888, help='run on the given port', type=int)
 
 @bottle.get('/facedetect')
 def facedetect():
@@ -67,7 +67,7 @@ class Application(Application):
 
 def main():
     tornado.options.parse_command_line()
-    bottle.run(host='0.0.0.0', port=80, debug=False)
+    bottle.run(host='0.0.0.0', port=options.port, debug=False)
 
 if __name__ == "__main__":
     main()
