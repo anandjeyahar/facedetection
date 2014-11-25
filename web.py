@@ -5,6 +5,7 @@ import sys
 sys.path.append("/home/anand/Downloads/devbox_configs/")
 import backend
 import facedetect as fdmod
+import flask
 import os
 import tornado
 from tornado.options import define, options
@@ -76,7 +77,7 @@ class Application(Application):
 
 def main():
     tornado.options.parse_command_line()
-    bottle.run(host='0.0.0.0', port=options.port, debug=False)
+    bottle.run(host='0.0.0.0', port=options.port, debug=True)
 
 if __name__ == "__main__":
     main()
