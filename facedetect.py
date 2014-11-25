@@ -7,9 +7,6 @@ from PIL import Image
 import sys
 import tornado
 from tornado.options import define, options
-## Custom backend account settings
-
-define('imgFolder', default='./uploadedImages', help = 'folder to store uploaded images', type=str)
 
 # FACEDETECT_IMG_HASHES = 'facedetect:img:hashes'
 SET_IMG_HASHES = 'set:img:hashes'

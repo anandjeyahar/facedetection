@@ -1,11 +1,18 @@
 import bottle
-import facedetect
+import cv2
+import sys
+# Custom backend account settings
+sys.path.append("/home/anand/Downloads/devbox_configs/")
+import backend
+import facedetect as fdmod
+import os
 import tornado
 from tornado.options import define, options
 from tornado.web import RequestHandler, Application
 
 define('debug', default=1, help='hot deployment. use in dev only', type=int)
 define('port', default=8888, help='run on the given port', type=int)
+define('imgFolder', default='./uploadedImages', help = 'folder to store uploaded images', type=str)
 
 @bottle.get('/')
 def facedetect():
@@ -14,24 +21,26 @@ def facedetect():
 @bottle.post('/')
 def facedetect():
     # Read the image
-    imgBytes = self.request.files.get('file_inp')[0].body
-    imgFileName = self.request.files.get('file_inp')[0].filename
-    imgHash = hashlib.sha512(imgBytes).hexdigest()
-    imgNew = not backend.redisConn.sismember(SET_IMG_HASHES, imgHash)
-    #backend.redislabs.pfadd(FACEDETECT_IMG_HASHES)
-    imgNparr = np.fromstring(imgBytes, np.uint8)
-    imgType = imgFileName.split('.')[1]
+    request = bottle.request
+    imgFd = request.files.get('file_inp')
+    imgFileName = imgFd.filename
+    imgName, imgType = imgFileName.split('.')
     imgType = '.jpg'
-    image = cv2.imdecode(imgNparr, cv2.CV_LOAD_IMAGE_COLOR)
-    imgPath = os.path.join(options.imgFolder, imgHash + imgType)
+    imgFullPath = os.path.join(options.imgFolder, imgName + imgType)
+    imgFd.save(imgFullPath)
+    # imgHash = hashlib.sha512(imgBytes).hexdigest()
+    # imgNew = not backend.redisConn.sismember(fdmod.SET_IMG_HASHES, imgHash)
+    # backend.redislabs.pfadd(fdmod.SET_IMG_HASHES)
+    image = cv2.imread(imgFullPath)
+    imgNew = True
     if imgNew:
-        cv2.imwrite(imgPath, image)
-        backend.redisConn.sadd(SET_IMG_HASHES, imgHash)
-    FD = facedetect.FeatureDetect(image)
+        cv2.imwrite(imgFullPath, image)
+        #backend.redisConn.sadd(fdmod.SET_IMG_HASHES, imgHash)
+    FD = fdmod.FeatureDetect(image)
     FD.detectFace()
     FD.detectEyes()
     FD.detectLips()
-    return bottle.template('static/areaselect.html',imgPath=imgPath )
+    return bottle.template('static/areaselect.html',imgPath=imgFullPath )
     #self.finish(json.dumps(FD.features))
     # Draw a rectangle around the faces
     # print "Found {0} faces!".format(len(FD.faces))
