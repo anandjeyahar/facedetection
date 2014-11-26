@@ -1,7 +1,11 @@
-<head>
+{% extends "headers.html" %}
+{% block header %}
+<h1> {{ header_text }} </h1>
+{% end %}
+{% block content %}
 <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
     <form action = "/facedetect/chosen" method="post" id="facedetect_chosen" >
-        <img src=/facedetect/{{imgPath }}>
+        <img src={{static_url(imgPath )}}>
     </form>
 
-</head>
+{% end %}

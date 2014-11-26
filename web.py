@@ -13,7 +13,7 @@ from tornado.web import RequestHandler, Application
 
 define('debug', default=1, help='hot deployment. use in dev only', type=int)
 define('port', default=8888, help='run on the given port', type=int)
-define('imgFolder', default='./uploadedImages', help = 'folder to store uploaded images', type=str)
+define('imgFolder', default='uploadedImages', help = 'folder to store uploaded images', type=str)
 
 class FaceDetectHandler(RequestHandler):
     def get(self):
@@ -39,7 +39,7 @@ class FaceDetectHandler(RequestHandler):
         FD.detectFace()
         FD.detectEyes()
         FD.detectLips()
-        return self.render('areaselect.html',imgPath=imgPath )
+        return self.render('areaselect.html',imgPath=imgPath, header_text="Play around, have fun" )
         #self.finish(json.dumps(FD.features))
         # Draw a rectangle around the faces
         # print "Found {0} faces!".format(len(FD.faces))
