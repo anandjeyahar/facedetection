@@ -4,7 +4,8 @@ import sys
 sys.path.append("/home/anand/Downloads/devbox_configs/")
 import backend
 import facedetect as fdmod
-import flask
+import hashlib
+import numpy as np
 import os
 import tornado
 from tornado.options import define, options
@@ -16,31 +17,29 @@ define('imgFolder', default='./uploadedImages', help = 'folder to store uploaded
 
 class FaceDetectHandler(RequestHandler):
     def get(self):
-        return self.render('static/imageupload.html')
+        return self.render('imageupload.html')
 
     def post(self):
         # Read the image
-        request = self.request
-        imgFd = request.files.get('file_inp')
-        imgFileName = imgFd.filename
-        imgName, imgType = imgFileName.split('.')
+        imgBytes = self.request.files.get('file_inp')[0].body
+        imgFileName = self.request.files.get('file_inp')[0].filename
+        imgHash = hashlib.sha512(imgBytes).hexdigest()
+        imgNew = not backend.redisLabsConn.sismember(fdmod.FACEDETECT_IMG_HASHES, imgHash)
+        imgNparr = np.fromstring(imgBytes, np.uint8)
+        imgType = imgFileName.split('.')[1]
         imgType = '.jpg'
-        imgFullPath = os.path.join(options.imgFolder, imgName + imgType)
-        imgFd.save(imgFullPath)
-        # imgHash = hashlib.sha512(imgBytes).hexdigest()
-        # imgNew = not backend.redisConn.sismember(fdmod.SET_IMG_HASHES, imgHash)
-        # backend.redislabs.pfadd(fdmod.SET_IMG_HASHES)
-        image = cv2.imread(imgFullPath)
+        image = cv2.imdecode(imgNparr, cv2.CV_LOAD_IMAGE_COLOR)
+        imgPath = os.path.join(options.imgFolder, imgHash + imgType)
         imgNew = True
         if imgNew:
-            cv2.imwrite(imgFullPath, image)
-            #backend.redisConn.sadd(fdmod.SET_IMG_HASHES, imgHash)
+            cv2.imwrite(imgPath, image)
+            backend.redisLabsConn.sadd(fdmod.FACEDETECT_IMG_HASHES, imgHash)
+            backend.redisLabsConn.pfadd(fdmod.FACEDETECT_IMG_CNT)
         FD = fdmod.FeatureDetect(image)
         FD.detectFace()
-        import pdb; pdb.set_trace()
         FD.detectEyes()
         FD.detectLips()
-        return self.render('static/areaselect.html',imgPath=imgFullPath )
+        return self.render('areaselect.html',imgPath=imgPath )
         #self.finish(json.dumps(FD.features))
         # Draw a rectangle around the faces
         # print "Found {0} faces!".format(len(FD.faces))
@@ -54,12 +53,6 @@ class FaceDetectHandler(RequestHandler):
         #     cv2.rectangle(image, (x, y), (x+w, y+h), (255, 0, 0), 2)
 
 class Application(Application):
-    #  """
-    #  >>> import requests
-    #  >>> requests.post("/shorten", params={"orig_url":"http://google.com"})
-    #  >>> resp = requests.get("/shorten", params={"short_url": "265477614567132497141480353139365708304L"})
-    #  >>> assert resp.url=="http://google.com"
-    #  """
     def __init__(self):
         handlers = [
                 (r'/', FaceDetectHandler),
@@ -70,6 +63,7 @@ class Application(Application):
             gzip=True,
             )
         settings.update({'static_path':'./static'})
+        settings.update({'template_path': os.path.join(os.path.dirname(__file__), 'static', 'html')})
         tornado.web.Application.__init__(self, handlers, **settings)
         if not os.path.exists(options.imgFolder):
             os.makedirs(options.imgFolder)

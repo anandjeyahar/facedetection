@@ -8,8 +8,8 @@ import sys
 import tornado
 from tornado.options import define, options
 
-# FACEDETECT_IMG_HASHES = 'facedetect:img:hashes'
-SET_IMG_HASHES = 'set:img:hashes'
+FACEDETECT_IMG_CNT = 'facedetect:img:cnt'
+FACEDETECT_IMG_HASHES = 'facedetect:img:hashes'
 
 class TooManyFacesException(Exception):
     pass
@@ -40,8 +40,12 @@ class FeatureDetect(object):
             minSize=(30, 30),
             flags = cv2.cv.CV_HAAR_SCALE_IMAGE
         )
+
 #        assert len(faces) == 1, raise TooManyFacesException({"faces":faces})
-        self.features.update({"faceCorners":str(self.faces[0])})
+        if len(self.faces) > 0:
+            self.features.update({"faceCorners":str(self.faces[0])})
+        else:
+            self.features.update({"faceCorners":None})
 
     def detectNose(self):
         self.noses = self.noseCascade.detectMultiScale(
@@ -52,7 +56,10 @@ class FeatureDetect(object):
             flags = cv2.cv.CV_HAAR_SCALE_IMAGE
         )
 #        assert len(self.noses) == 1, raise TooManyFacesException({"noses":self.noses})
-        self.features.update({"noseCorners":str(self.noses[0])})
+        if len(self.noses) > 0:
+            self.features.update({"noseCorners":str(self.noses[0])})
+        else:
+            self.features.update({"noseCorners":None})
 
     def detectLips(self):
         # Detect faces in the image
@@ -64,7 +71,10 @@ class FeatureDetect(object):
             flags = cv2.cv.CV_HAAR_SCALE_IMAGE
         )
 #        assert len(self.lips) == 1, raise TooManyFacesException({"faces":self.lips})
-        self.features.update({"lipCorners":str(self.lips[0])})
+        if len(self.lips) > 0:
+            self.features.update({"lipCorners":str(self.lips[0])})
+        else:
+            self.features.update({"lipCorners":None})
 
     def detectEyes(self):
         # Detect faces in the image
@@ -76,7 +86,9 @@ class FeatureDetect(object):
             flags = cv2.cv.CV_HAAR_SCALE_IMAGE
         )
 #        assert len(self.eyes) == 1, raise TooManyFacesException({"faces":self.eyes})
-        self.features.update({"eyeCorners":str(self.eyes[0])})
-
+        if len(self.eyes) > 0:
+            self.features.update({"eyeCorners":str(self.eyes[0])})
+        else:
+            self.features.update({"eyeCorners":None})
 
 
