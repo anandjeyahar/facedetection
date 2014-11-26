@@ -11,6 +11,11 @@ import os
 import tornado
 from tornado.options import define, options
 from tornado.web import RequestHandler, Application
+redistogo_url = os.getenv('REDISTOGOURL')
+if redis_url:
+    #redis_url = redistogo_url.split('redis://redistogo:')[1]
+    #redis_url = redis_url.split('/')[0]
+    redisToGoConn = redis.from_url(redistogo_url)
 
 define('debug', default=1, help='hot deployment. use in dev only', type=int)
 define('port', default=8888, help='run on the given port', type=int)
@@ -25,7 +30,7 @@ class FaceDetectHandler(RequestHandler):
         imgBytes = self.request.files.get('file_inp')[0].body
         imgFileName = self.request.files.get('file_inp')[0].filename
         imgHash = hashlib.sha512(imgBytes).hexdigest()
-        imgNew = not backend.redisLabsConn.sismember(fdmod.FACEDETECT_IMG_HASHES, imgHash)
+        imgNew = not redisToGoConn.sismember(fdmod.FACEDETECT_IMG_HASHES, imgHash)
         imgNparr = np.fromstring(imgBytes, np.uint8)
         imgType = imgFileName.split('.')[1]
         imgType = '.jpg'
@@ -34,8 +39,8 @@ class FaceDetectHandler(RequestHandler):
         imgNew = True
         if imgNew:
             cv2.imwrite(imgPath, image)
-            backend.redisLabsConn.sadd(fdmod.FACEDETECT_IMG_HASHES, imgHash)
-            backend.redisLabsConn.pfadd(fdmod.FACEDETECT_IMG_CNT)
+            redisToGoConn.sadd(fdmod.FACEDETECT_IMG_HASHES, imgHash)
+            redisToGoConn.pfadd(fdmod.FACEDETECT_IMG_CNT)
         FD = fdmod.FeatureDetect(image)
         FD.detectFace()
         FD.detectEyes()
@@ -66,7 +71,7 @@ class Application(Application):
         settings.update({'static_path':'./static'})
         settings.update({'template_path': os.path.join(os.path.dirname(__file__), 'static', 'html')})
         tornado.web.Application.__init__(self, handlers, **settings)
-        if not os.path.exists(options.imgFolder):
+        if not os.path.exists(os.path.join(os.path.dirname(__file__), 'static', options.imgFolder):
             os.makedirs(options.imgFolder)
 
 def main():
