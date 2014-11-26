@@ -4,14 +4,6 @@
 {% end %}
 {% block content %}
 <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
-    <img id="imageInput" src={{static_url(imgPath )}}>
-
-<script type="text/javascript">
-  var imageInput = document.getElementById('inputVideo');
-
-    var ctracker = new clm.tracker();
-      ctracker.init(pModel);
-        ctracker.start(videoInput);
-        </script>
+<img id="imageInput" src={{static_url(imgPath )}}>
 
 {% end %}
