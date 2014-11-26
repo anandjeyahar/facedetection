@@ -4,8 +4,14 @@
 {% end %}
 {% block content %}
 <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
-    <form action = "/facedetect/chosen" method="post" id="facedetect_chosen" >
-        <img src={{static_url(imgPath )}}>
-    </form>
+    <img id="imageInput" src={{static_url(imgPath )}}>
+
+<script type="text/javascript">
+  var imageInput = document.getElementById('inputVideo');
+
+    var ctracker = new clm.tracker();
+      ctracker.init(pModel);
+        ctracker.start(videoInput);
+        </script>
 
 {% end %}
