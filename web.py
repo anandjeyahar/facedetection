@@ -4,6 +4,7 @@ import sys
 sys.path.append("/home/anand/Downloads/devbox_configs/")
 import backend
 import facedetect as fdmod
+import json
 import hashlib
 import numpy as np
 import os
@@ -39,8 +40,8 @@ class FaceDetectHandler(RequestHandler):
         FD.detectFace()
         FD.detectEyes()
         FD.detectLips()
-        return self.render('areaselect.html',imgPath=imgPath, header_text="Play around, have fun" )
-        #self.finish(json.dumps(FD.features))
+        #return self.render('areaselect.html',imgPath=imgPath, header_text="Play around, have fun" )
+        self.finish(json.dumps(FD.features))
         # Draw a rectangle around the faces
         # print "Found {0} faces!".format(len(FD.faces))
         # for (x, y, w, h) in FD.faces:
