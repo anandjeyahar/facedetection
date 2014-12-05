@@ -23,7 +23,8 @@ class FaceDetectHandler(RequestHandler):
         return self.render('imageupload.html')
 
     def post(self):
-        # Read the image
+        compareFaces = bool(self.request.files.get('file_inp1'))
+        # Read the images
         imgBytes = self.request.files.get('file_inp')[0].body
         imgFileName = self.request.files.get('file_inp')[0].filename
         imgHash = hashlib.sha512(imgBytes).hexdigest()
@@ -34,6 +35,19 @@ class FaceDetectHandler(RequestHandler):
         image = cv2.imdecode(imgNparr, cv2.CV_LOAD_IMAGE_COLOR)
         imgPath = os.path.join(options.imgFolder, imgHash + imgType)
         imgNew = True
+        if compareFaces:
+            imgBytes1 = self.request.files.get('file_inp1')[0].body
+            imgFileName1 = self.request.files.get('file_inp1')[0].filename
+            imgHash1 = hashlib.sha512(imgBytes1).hexdigest()
+            imgNew1 = not redisToGoConn.sismember(fdmod.FACEDETECT_IMG_HASHES, imgHash1)
+            imgNparr1 = np.fromstring(imgBytes1, np.uint8)
+            imgType1 = imgFileName1.split('.')[1]
+            image1 = cv2.imdecode(imgNparr1, cv2.CV_LOAD_IMAGE_COLOR)
+            imgPath1 = os.path.join(options.imgFolder, imgHash1 + imgType1)
+            if imgNew1:
+                cv2.imwrite(imgPath1, image1)
+                redisToGoConn.sadd(fdmod.FACEDETECT_IMG_HASHES, imgHash1)
+                redisToGoConn.pfadd(fdmod.FACEDETECT_IMG_CNT)
         if imgNew:
             cv2.imwrite(imgPath, image)
             redisToGoConn.sadd(fdmod.FACEDETECT_IMG_HASHES, imgHash)
