@@ -7,11 +7,17 @@
       <div class="jumbotron">
         <h1>Upload Picture</h1>
         <form action = "/" method="post" id="facedetect" enctype=multipart/form-data>
+            <table cellpadding=2 border=1>
             <tr>
-            <td><label for="file_inp"> Input Image File </label>
-            <input type=file label="file_inp" id="file_inp" name="file_inp"> </td>
-            <td><button type="submit">Detect Face </button></td>
+                <td><label for="file_inp"> Input Image File1 </label></td>
+                <td><input type=file label="file_inp" id="file_inp" name="file_inp"> </td> </tr>
+            <tr>
+                <td><label for="file_inp"> Input Image File2 </label></td>
+                <td><input type=file label="file_inp1" id="file_inp1" name="file_inp1"> </td>
             </tr>
+            </table>
+    </br>
+        <button type="submit">Detect Face </button>
         </form>
 {% end %}
 </html>
