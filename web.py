@@ -4,6 +4,7 @@ import hashlib
 import json
 import numpy as np
 import os
+import phash
 import redis
 import tornado
 import tornado.httpserver
@@ -35,6 +36,10 @@ class FaceDetectHandler(RequestHandler):
         image = cv2.imdecode(imgNparr, cv2.CV_LOAD_IMAGE_COLOR)
         imgPath = os.path.join(options.imgFolder, imgHash + imgType)
         imgNew = True
+        if imgNew:
+            cv2.imwrite(imgPath, image)
+            redisToGoConn.sadd(fdmod.FACEDETECT_IMG_HASHES, imgHash)
+            redisToGoConn.pfadd(fdmod.FACEDETECT_IMG_CNT)
         if compareFaces:
             imgBytes1 = self.request.files.get('file_inp1')[0].body
             imgFileName1 = self.request.files.get('file_inp1')[0].filename
@@ -48,26 +53,24 @@ class FaceDetectHandler(RequestHandler):
                 cv2.imwrite(imgPath1, image1)
                 redisToGoConn.sadd(fdmod.FACEDETECT_IMG_HASHES, imgHash1)
                 redisToGoConn.pfadd(fdmod.FACEDETECT_IMG_CNT)
-        if imgNew:
-            cv2.imwrite(imgPath, image)
-            redisToGoConn.sadd(fdmod.FACEDETECT_IMG_HASHES, imgHash)
-            redisToGoConn.pfadd(fdmod.FACEDETECT_IMG_CNT)
-        FD = fdmod.FeatureDetect(image)
-        FD.detectFace()
-        FD.detectEyes()
-        FD.detectLips()
-        #return self.render('areaselect.html',imgPath=imgPath, header_text="Play around, have fun" )
-        self.finish(json.dumps(FD.features))
-        # Draw a rectangle around the faces
-        # print "Found {0} faces!".format(len(FD.faces))
-        # for (x, y, w, h) in FD.faces:
-        #     cv2.rectangle(image, (x, y), (x+w, y+h), (0, 255, 0), 2)
-        # print "Found {0} eyes".format(len(FD.eyes))
-        # for (x, y, w, h) in FD.eyes:
-        #     cv2.rectangle(image, (x, y), (x+w, y+h), (0, 0, 255), 2)
-        # print "Found {0} lips".format(len(FD.lips))
-        # for (x, y, w, h) in FD.lips:
-        #     cv2.rectangle(image, (x, y), (x+w, y+h), (255, 0, 0), 2)
+            same_face = bool(phash.cross_correlation(imgHash,imgHash1))
+            self.finish(json.dumps({"sameface": same_face}))
+        else:
+            FD = fdmod.FeatureDetect(image)
+            FD.detectFace()
+            FD.detectEyes()
+            FD.detectLips()
+            self.finish(json.dumps(FD.features))
+            # Draw a rectangle around the faces
+            # print "Found {0} faces!".format(len(FD.faces))
+            # for (x, y, w, h) in FD.faces:
+            #     cv2.rectangle(image, (x, y), (x+w, y+h), (0, 255, 0), 2)
+            # print "Found {0} eyes".format(len(FD.eyes))
+            # for (x, y, w, h) in FD.eyes:
+            #     cv2.rectangle(image, (x, y), (x+w, y+h), (0, 0, 255), 2)
+            # print "Found {0} lips".format(len(FD.lips))
+            # for (x, y, w, h) in FD.lips:
+            #     cv2.rectangle(image, (x, y), (x+w, y+h), (255, 0, 0), 2)
 
 class Application(Application):
     def __init__(self):
