@@ -5,15 +5,13 @@ import json
 import numpy as np
 import os
 import phash
-import redis
+import sys
+sys.path.append('/home/anand/Downloads/devbox_configs/')
+import backend
 import tornado
 import tornado.httpserver
 from tornado.options import define, options
 from tornado.web import RequestHandler, Application
-
-redistogo_url = os.getenv('REDISTOGO_URL')
-assert redistogo_url, 'no redistogo urs set'
-redisToGoConn = redis.from_url(redistogo_url)
 
 define('debug', default=1, help='hot deployment. use in dev only', type=int)
 define('port', default=8888, help='run on the given port', type=int)
@@ -29,7 +27,7 @@ class FaceDetectHandler(RequestHandler):
         imgBytes = self.request.files.get('file_inp')[0].body
         imgFileName = self.request.files.get('file_inp')[0].filename
         imgHash = hashlib.sha512(imgBytes).hexdigest()
-        imgNew = not redisToGoConn.sismember(fdmod.FACEDETECT_IMG_HASHES, imgHash)
+        imgNew = not backend.redisToGoConn.sismember(fdmod.FACEDETECT_IMG_HASHES, imgHash)
         imgNparr = np.fromstring(imgBytes, np.uint8)
         imgType = imgFileName.split('.')[1]
         imgType = '.jpg'
@@ -38,21 +36,21 @@ class FaceDetectHandler(RequestHandler):
         imgNew = True
         if imgNew:
             cv2.imwrite(imgPath, image)
-            redisToGoConn.sadd(fdmod.FACEDETECT_IMG_HASHES, imgHash)
-            redisToGoConn.pfadd(fdmod.FACEDETECT_IMG_CNT)
+            backend.redisToGoConn.sadd(fdmod.FACEDETECT_IMG_HASHES, imgHash)
+            backend.redisToGoConn.pfadd(fdmod.FACEDETECT_IMG_CNT)
         if compareFaces:
             imgBytes1 = self.request.files.get('file_inp1')[0].body
             imgFileName1 = self.request.files.get('file_inp1')[0].filename
             imgHash1 = hashlib.sha512(imgBytes1).hexdigest()
-            imgNew1 = not redisToGoConn.sismember(fdmod.FACEDETECT_IMG_HASHES, imgHash1)
+            imgNew1 = not backend.redisToGoConn.sismember(fdmod.FACEDETECT_IMG_HASHES, imgHash1)
             imgNparr1 = np.fromstring(imgBytes1, np.uint8)
             imgType1 = imgFileName1.split('.')[1]
             image1 = cv2.imdecode(imgNparr1, cv2.CV_LOAD_IMAGE_COLOR)
             imgPath1 = os.path.join(options.imgFolder, imgHash1 + imgType1)
             if imgNew1:
                 cv2.imwrite(imgPath1, image1)
-                redisToGoConn.sadd(fdmod.FACEDETECT_IMG_HASHES, imgHash1)
-                redisToGoConn.pfadd(fdmod.FACEDETECT_IMG_CNT)
+                backend.redisToGoConn.sadd(fdmod.FACEDETECT_IMG_HASHES, imgHash1)
+                backend.redisToGoConn.pfadd(fdmod.FACEDETECT_IMG_CNT)
             same_face = bool(phash.cross_correlation(imgHash,imgHash1))
             self.finish(json.dumps({"sameface": same_face}))
         else:
