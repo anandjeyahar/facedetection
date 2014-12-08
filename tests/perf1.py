@@ -3,7 +3,7 @@ def main():
     import timeit
     import facedetect as fdmod
     import cv2
-    image = cv2.imread('./abba.png')
+    image = cv2.imread('./abba.jpg')
     FD = fdmod.FeatureDetect(image)
     FD.detectFace()
 

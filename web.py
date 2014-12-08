@@ -60,7 +60,7 @@ class FaceDetectHandler(RequestHandler):
             FD.detectFace()
             FD.detectEyes()
             FD.detectLips()
-            self.finish(json.dumps(FD.features))
+            self.render('areaselect.html', features=FD.features, imgPath=imgPath)
             # Draw a rectangle around the faces
             # print "Found {0} faces!".format(len(FD.faces))
             # for (x, y, w, h) in FD.faces:

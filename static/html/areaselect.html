@@ -1,9 +1,15 @@
+<html lang="en">
 {% extends "headers.html" %}
-{% block header %}
-<h1> {{ header_text }} </h1>
-{% end %}
 {% block content %}
-<script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
-<img id="imageInput" src={{static_url(imgPath )}}>
+{{ features }}
 
+<script>
+
+    $(document).ready(function () {
+        p5.Image(0,'{{static_url(imgPath)}}');
+    //    $("#imageInput");
+    });
+
+</script>
 {% end %}
+</html>
