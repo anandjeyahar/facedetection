@@ -7,7 +7,7 @@ def detectFace():
     FD = fdmod.FeatureDetect(image)
     FD.detectFace()
 
-if __name__ == '__main__':
+def hotshot_profiling():
     prof = hotshot.Profile('haarcascade.prof')
     benchtime, stones = prof.runcall(detectFace)
     prof.close()
@@ -16,3 +16,9 @@ if __name__ == '__main__':
     stats.strip_dirs()
     stats.sort_stats('time', 'calls')
     stats.print_stats(20)
+
+def main():
+    detectFace()
+    pass
+if __name__ == '__main__':
+    main()
