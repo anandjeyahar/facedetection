@@ -2,11 +2,25 @@
 {% extends "headers.html" %}
 {% block content %}
 {{ features }}
-
+<script src="{{static_url('js/draw.js')}}"></script>
 <script>
 
     $(document).ready(function () {
-        p5.Image(2240,'{{static_url(imgPath)}}');
+        var js_dict = {
+            {% for k, v in features.iteritems() %}
+                "{{ k }}": "{{ v }}",
+            {% end %}
+        };
+        setup();
+        var features= $.parseJSON("{{features}}");
+        alert(features);
+        var x1 = features.faceCorners[0];
+        var y1 = features.faceCorners[0];
+        var x2 = features.faceCorners[0];
+        var y2 = features.faceCorners[0];
+
+        draw(x1,y1,x2,y2):
+     //   p5.Image(1200,1080);//,'{{static_url(imgPath)}}');
     //    $("#imageInput");
     });
 
