@@ -75,7 +75,7 @@ class FeatureDetect(object):
 
     def detectLips(self):
         # Detect faces in the image
-        self.lips = self.faceCascade.detectMultiScale(
+        self.lips = self.mouthCascade.detectMultiScale(
             self.grayImage,
             scaleFactor=1.1,
             minNeighbors=2,
