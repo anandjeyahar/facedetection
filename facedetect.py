@@ -7,6 +7,9 @@ from PIL import Image
 import sys
 import tornado
 from tornado.options import define, options
+import logging
+
+logger = logging.getLogger(__name__)
 
 FACEDETECT_IMG_CNT = 'facedetect:img:cnt'
 FACEDETECT_IMG_HASHES = 'facedetect:img:hashes'
@@ -16,7 +19,7 @@ class TooManyFacesException(Exception):
     pass
 
 class FeatureDetect(object):
-    def __init__(self, image, classifier=None):
+    def __init__(self, image, classifier='opencv-haarcascade'):
         self.HpIDOLOnDemandAsyncUrl = 'https://api.idolondemand.com/1/api/async/detectfaces/v1'
         self.HpIDOLOnDemandSyncUrl = 'https://api.idolondemand.com/1/api/sync/detectfaces/v1'
         assert classifier in CLASSIFICATIONS, logger.error('unknown classifier')
