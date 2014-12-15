@@ -86,7 +86,7 @@ class Application(Application):
         settings.update({'template_path': os.path.join(os.path.dirname(__file__), 'static', 'html')})
         tornado.web.Application.__init__(self, handlers, **settings)
         if not os.path.exists(os.path.join(os.path.dirname(__file__), 'static', options.imgFolder)):
-            os.makedirs(options.imgFolder)
+            os.makedirs(os.path.join(os.path.dirname(__file__), 'static', options.imgFolder))
 
 def main():
     tornado.options.parse_command_line()

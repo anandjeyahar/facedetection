@@ -16,9 +16,9 @@ class TooManyFacesException(Exception):
     pass
 
 class FeatureDetect(object):
-    self.HpIDOLOnDemandAsyncUrl = 'https://api.idolondemand.com/1/api/async/detectfaces/v1'
-    self.HpIDOLOnDemandSyncUrl = 'https://api.idolondemand.com/1/api/sync/detectfaces/v1'
     def __init__(self, image, classifier=None):
+        self.HpIDOLOnDemandAsyncUrl = 'https://api.idolondemand.com/1/api/async/detectfaces/v1'
+        self.HpIDOLOnDemandSyncUrl = 'https://api.idolondemand.com/1/api/sync/detectfaces/v1'
         assert classifier in CLASSIFICATIONS, logger.error('unknown classifier')
         self.classifier = CLASSIFICATIONS[0]
         if classifier == CLASSIFICATIONS[0]:
