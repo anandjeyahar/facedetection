@@ -1,7 +1,7 @@
 import facedetect
 import cv2
 def test_fd():
-    image = cv2.imread('me.jpg')
+    image = cv2.imread('abba.jpg')
     print image.shape
     FD = facedetect.FeatureDetect(image)
     FD.detectEyes()
