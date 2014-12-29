@@ -59,6 +59,10 @@ class FaceDetectHandler(RequestHandler):
             FD.detectFace()
             FD.detectEyes()
             FD.detectLips()
+            FD.detectNose()
+            FD.detectNudeAreas()
+            features = FD.features
+            features.update({'imageFile':os.path.join('/static/',options.imgFolder, imgHash + imgType)})
             self.render('areaselect.html', features=FD.features, imgPath=imgPath)
             # Draw a rectangle around the faces
             # print "Found {0} faces!".format(len(FD.faces))
