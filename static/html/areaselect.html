@@ -2,15 +2,31 @@
 {% extends "headers.html" %}
 {% block content %}
 {{ features }}
-<script src="{{static_url('js/draw.js')}}"></script>
+<div id='myp5Container'>
+</div>
 <script>
 
     $(document).ready(function () {
+        debugger;
+        var s = function(sketch) {
+            var x1, y1, x2, y2 = x1,y1,x2,y2;
+            sketch.setup = function () {
+                 createCanvas(1080,840);
+             }
+            sketch.draw = function () {
+                 background(255);
+                 line(x1,y1,x2,y1);
+                 line(x1,y2,x2,y2);
+                 line(x2,y1,x1,y1);
+                 line(x2,y2,x1,y2);
+             }
+        }
         var js_dict = {
             {% for k, v in features.iteritems() %}
                 "{{ k }}": "{{ v }}",
             {% end %}
         };
+        var myp5 = new p5(s, 'myp5Container');
         setup();
         var features= $.parseJSON("{{features}}");
         alert(features);
@@ -19,7 +35,7 @@
         var x2 = features.faceCorners[0];
         var y2 = features.faceCorners[0];
 
-        draw(x1,y1,x2,y2):
+        draw(x1,y1,x2,y2);
      //   p5.Image(1200,1080);//,'{{static_url(imgPath)}}');
     //    $("#imageInput");
     });
