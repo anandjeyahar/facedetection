@@ -31,8 +31,9 @@
                 "{{ k }}": "{{ v }}",
             {% end %}
         };
-
-        var myp5 = new p5(s.bind(features), 'myp5Container');
+        obj = Object.create(p5.prototype)//, 'myp5Container');
+        p5.apply(obj, features, 'myp5Container');
+        var myp5 = obj;//new p5(s.bind(features), 'myp5Container');
 
      //   p5.Image(1200,1080);//,'{{static_url(imgPath)}}');
     //    $("#imageInput");
