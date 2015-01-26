@@ -55,7 +55,6 @@ class FeatureDetect(object):
         self.features = dict()
 
     def detectFace(self):
-        assert self.grayImage is not None
         # Detect faces in the image
         if self.classifier == CLASSIFICATIONS[0]:
             for casc in self.faceCascade:
@@ -82,7 +81,6 @@ class FeatureDetect(object):
             self.features.update({'faceCorners':None})
 
     def detectNose(self):
-        assert self.grayImage is not None
         for casc in self.noseCascade:
             self.noses = casc.detectMultiScale(
                  self.grayImage,
@@ -99,7 +97,6 @@ class FeatureDetect(object):
             self.features.update({'noseCorners':None})
 
     def detectLips(self):
-        assert self.grayImage is not None
         # Detect faces in the image
         for casc in self.mouthCascade:
             self.lips = casc.detectMultiScale(
@@ -117,7 +114,6 @@ class FeatureDetect(object):
             self.features.update({'lipCorners':None})
 
     def detectEyes(self):
-        assert self.grayImage is not None
         for casc in self.eyeCascade:
             # Detect faces in the image
             self.eyes = casc.detectMultiScale(
@@ -136,7 +132,6 @@ class FeatureDetect(object):
             self.features.update({'eyeCorners':None})
 
     def detectNudeAreas(self):
-        assert self.grayImage is not None
         # Damn it this was a waste of time. this detects
         # skin based on colour and under only certain lighting conditions
         n = Nude(Image.fromarray(self.image))

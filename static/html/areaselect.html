@@ -2,39 +2,24 @@
 {% extends "headers.html" %}
 {% block content %}
 {{ features }}
-<div id="myp5Container" style="height: 100px;">
-    test
-</div>
+<script src="{{static_url('js/draw.js')}}"></script>
 <script>
 
     $(document).ready(function () {
-        var s = function(sketch) {
-            debugger;
-            var x1 = features.faceCorners[0];
-            var y1 = features.faceCorners[0];
-            var x2 = features.faceCorners[0];
-            var y2 = features.faceCorners[0];
-            sketch.setup = function () {
-                 sketch.createCanvas(1080,840);
-                 sketch.loadImage(features.imageFile, sketch.draw);
-             }
-            sketch.draw = function () {
-                 sketch.background(255);
-                 sketch.line(x1,y1,x2,y1);
-                 sketch.line(x1,y2,x2,y2);
-                 sketch.line(x2,y1,x1,y1);
-                 sketch.line(x2,y2,x1,y2);
-             }
-        }
-        var features = {
+        var js_dict = {
             {% for k, v in features.iteritems() %}
                 "{{ k }}": "{{ v }}",
             {% end %}
         };
-        obj = Object.create(p5.prototype)//, 'myp5Container');
-        p5.apply(obj, features, 'myp5Container');
-        var myp5 = obj;//new p5(s.bind(features), 'myp5Container');
+        setup();
+        var features= $.parseJSON("{{features}}");
+        alert(features);
+        var x1 = features.faceCorners[0];
+        var y1 = features.faceCorners[0];
+        var x2 = features.faceCorners[0];
+        var y2 = features.faceCorners[0];
 
+        draw(x1,y1,x2,y2):
      //   p5.Image(1200,1080);//,'{{static_url(imgPath)}}');
     //    $("#imageInput");
     });

@@ -22,17 +22,16 @@ class FaceDetectHandler(RequestHandler):
         return self.render('imageupload.html')
 
     def post(self):
-        assert(self.request.files.get('file_inp'))
         compareFaces = bool(self.request.files.get('file_inp1'))
         # Read the images
         imgBytes = self.request.files.get('file_inp')[0].body
         imgFileName = self.request.files.get('file_inp')[0].filename
         imgHash = hashlib.sha512(imgBytes).hexdigest()
         imgNew = not backend.redisToGoConn.sismember(fdmod.FACEDETECT_IMG_HASHES, imgHash)
-        imgNpArr = np.fromstring(imgBytes, np.uint8)
+        imgNparr = np.fromstring(imgBytes, np.uint8)
         imgType = imgFileName.split('.')[1]
         imgType = '.jpg'
-        image = cv2.imdecode(imgNpArr, cv2.CV_LOAD_IMAGE_COLOR)
+        image = cv2.imdecode(imgNparr, cv2.CV_LOAD_IMAGE_COLOR)
         imgPath = os.path.join(options.imgFolder, imgHash + imgType)
         imgNew = True
         if imgNew:
@@ -44,9 +43,9 @@ class FaceDetectHandler(RequestHandler):
             imgFileName1 = self.request.files.get('file_inp1')[0].filename
             imgHash1 = hashlib.sha512(imgBytes1).hexdigest()
             imgNew1 = not backend.redisToGoConn.sismember(fdmod.FACEDETECT_IMG_HASHES, imgHash1)
-            imgNpArr1 = np.fromstring(imgBytes1, np.uint8)
+            imgNparr1 = np.fromstring(imgBytes1, np.uint8)
             imgType1 = imgFileName1.split('.')[1]
-            image1 = cv2.imdecode(imgNpArr1, cv2.CV_LOAD_IMAGE_COLOR)
+            image1 = cv2.imdecode(imgNparr1, cv2.CV_LOAD_IMAGE_COLOR)
             imgPath1 = os.path.join(options.imgFolder, imgHash1 + imgType1)
             if imgNew1:
                 cv2.imwrite(imgPath1, image1)
@@ -55,14 +54,12 @@ class FaceDetectHandler(RequestHandler):
             same_face = bool(phash.cross_correlation(imgHash,imgHash1))
             self.finish(json.dumps({"sameface": same_face}))
         else:
+            print type(image)
             FD = fdmod.FeatureDetect(image)
             FD.detectFace()
             FD.detectEyes()
             FD.detectLips()
-            FD.detectNose()
             FD.detectNudeAreas()
-            features = FD.features
-            features.update({'imageFile':os.path.join('/static/',options.imgFolder, imgHash + imgType)})
             self.render('areaselect.html', features=FD.features, imgPath=imgPath)
             # Draw a rectangle around the faces
             # print "Found {0} faces!".format(len(FD.faces))
@@ -87,7 +84,7 @@ class Application(Application):
             xheaders=True,
 
             )
-        settings.update({'static_path':os.path.join(os.path.dirname(__file__), 'static')})
+        settings.update({'static_path':'./static'})
         settings.update({'template_path': os.path.join(os.path.dirname(__file__), 'static', 'html')})
         tornado.web.Application.__init__(self, handlers, **settings)
         if not os.path.exists(os.path.join(os.path.dirname(__file__), 'static', options.imgFolder)):
