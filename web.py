@@ -17,6 +17,10 @@ define('debug', default=1, help='hot deployment. use in dev only', type=int)
 define('port', default=8888, help='run on the given port', type=int)
 define('imgFolder', default='uploadedImages', help = 'folder to store uploaded images', type=str)
 
+class ImageHandler(RequestHandler):
+    def get(self):
+        print 'image handler'
+        pass
 class FaceDetectHandler(RequestHandler):
     def get(self):
         return self.render('imageupload.html')
@@ -54,13 +58,12 @@ class FaceDetectHandler(RequestHandler):
             same_face = bool(phash.cross_correlation(imgHash,imgHash1))
             self.finish(json.dumps({"sameface": same_face}))
         else:
-            print type(image)
             FD = fdmod.FeatureDetect(image)
             FD.detectFace()
             FD.detectEyes()
             FD.detectLips()
             FD.detectNudeAreas()
-            self.render('areaselect.html', features=FD.features, imgPath=imgPath)
+            self.render('areaselect.html', features=json.dumps(FD.features), imgPath=imgPath)
             # Draw a rectangle around the faces
             # print "Found {0} faces!".format(len(FD.faces))
             # for (x, y, w, h) in FD.faces:
@@ -76,6 +79,8 @@ class Application(Application):
     def __init__(self):
         handlers = [
                 (r'/', FaceDetectHandler),
+                (r'/static/(.*)', tornado.web.StaticFileHandler, {'path': './static'}),
+                (r'(.*)uploadedImages/(.*)', ImageHandler),
                 ]
         settings = dict(
             autoescape=None,  # tornado 2.1 backward compatibility
